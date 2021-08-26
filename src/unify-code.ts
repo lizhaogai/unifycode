@@ -41,8 +41,9 @@ export class UnifyCode {
       codeValue = (codeValue - charIndex) / this.key.length;
       code = code + this.key.substr(charIndex, 1);
     }
-    this.store.setRotate(rotate);
-    return code;
+    await this.store.setRotate(rotate);
+    if (await this.validator.isValid(code)) return code;
+    else return this.generate();
   }
 
   async determineRotate(): Promise<Rotate> {
