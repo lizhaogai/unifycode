@@ -1,1 +1,2 @@
-export const message = 'Generator TS Node';
+export * from './types';
+export * from './unify-code';

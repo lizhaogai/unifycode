@@ -16,3 +16,4 @@ examples/*/dist
 .eslintcache
 
 *.bin
+dist
