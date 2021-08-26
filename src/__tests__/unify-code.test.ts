@@ -8,11 +8,11 @@ class VS implements RotateStore, CodeValidator {
     return this.rotate;
   }
 
-  isValid(code: string): boolean {
+  async isValid(code: string): Promise<boolean> {
     return true;
   }
 
-  setRotate(rotate: Rotate): void {
+  async setRotate(rotate: Rotate): Promise<void> {
     this.rotate = rotate;
   }
 }

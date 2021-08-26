@@ -1,5 +1,5 @@
 export interface RotateStore {
-  setRotate(rotate: Rotate): void;
+  setRotate(rotate: Rotate): Promise<void>;
 
   getRotate(): Promise<Rotate>;
 }
@@ -11,5 +11,5 @@ export type Rotate = {
 };
 
 export interface CodeValidator {
-  isValid(code: string): boolean;
+  isValid(code: string): Promise<boolean>;
 }
