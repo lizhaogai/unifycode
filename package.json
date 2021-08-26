@@ -1,0 +1,57 @@
+{
+  "name": "unifycode",
+  "version": "0.1.0",
+  "description": "Unify Code library",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=10.16"
+  },
+  "scripts": {
+    "prerelease": "cross-env CI=1 npm run test",
+    "release": "np",
+    "build": "tib-tsc",
+    "build:full": "npm ci --ignore-scripts && npm run clean && npm run build",
+    "coverage": "tib-nyc report --reporter=text-summary",
+    "precoverage": "npm test",
+    "lint": "npm run prettier:check && npm run eslint",
+    "lint:fix": "npm run eslint:fix && npm run prettier:fix",
+    "eslint": "tib-eslint --report-unused-disable-directives --cache .",
+    "eslint:fix": "npm run eslint -- --fix",
+    "prettier:cli": "tib-prettier \"**/*.ts\" \"**/*.js\" \"**/*.md\"",
+    "prettier:check": "npm run prettier:cli -- --check",
+    "prettier:fix": "npm run prettier:cli -- --write",
+    "format": "npm run prettier:fix",
+    "clean": "tib-clean dist coverage .nyc_output *.tsbuildinfo",
+    "pretest": "npm run clean && npm run format",
+    "test": "tib-nyc npm run mocha",
+    "test:ci": "tib-nyc npm run mocha",
+    "posttest": "npm run lint",
+    "premocha": "npm run build",
+    "mocha": "tib-mocha \"dist/__tests__/**/*.js\"",
+    "preunit": "npm run build",
+    "unit": "tib-mocha \"dist/__tests__/unit/**/*.js\""
+  },
+  "author": "li zhaogai <493788939lizhaogai@163.com>",
+  "license": "MIT",
+  "dependencies": {
+    "tslib": "^2.0.0"
+  },
+  "devDependencies": {
+    "@tib/build": "^6.3.0",
+    "@tib/eslint-config": "^8.2.0",
+    "@tib/testlab": "^3.4.0",
+    "@types/mocha": "^8.0.0",
+    "@types/node": "^14.0.26",
+    "cross-env": "^7.0.2",
+    "mocha": "^8.0.1",
+    "np": "^6.3.2"
+  },
+  "keywords": [],
+  "files": [
+    "README.md",
+    "dist",
+    "src",
+    "!*/__tests__"
+  ]
+}
