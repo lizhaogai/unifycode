@@ -112,14 +112,14 @@ export class UnifyCode {
     );
 
     for (let i = end; i > 0; i--) {
-      let isZhiSHu = true;
+      let isPrimeNumber = true;
       for (let j = 2; j < i; j++) {
         if (i % j === 0) {
-          isZhiSHu = false;
+          isPrimeNumber = false;
           break;
         }
       }
-      if (isZhiSHu) {
+      if (isPrimeNumber) {
         return i;
       }
     }
