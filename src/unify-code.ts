@@ -33,21 +33,24 @@ export class UnifyCode {
   }
 
   async generate(): Promise<string> {
-    const rotate = await this.determineRotate();
-    let codeValue = rotate.code;
-    let code = '';
-    for (let i = 1; i <= this.length; i++) {
-      const charIndex = codeValue % this.key.length;
-      codeValue = (codeValue - charIndex) / this.key.length;
-      code = code + this.key.substr(charIndex, 1);
-    }
+    const rotate = await this.determineRotate(await this.store.getRotate());
+    const code = this.valueToCode(rotate.code, this.key, this.length);
     await this.store.setRotate(rotate);
     if (await this.validator.isValid(code)) return code;
     else return this.generate();
   }
 
-  async determineRotate(): Promise<Rotate> {
-    let rotate = await this.store.getRotate();
+  valueToCode(value: number, key: string, length: number) {
+    let code = '';
+    for (let i = 1; i <= length; i++) {
+      const charIndex = value % key.length;
+      value = (value - charIndex) / key.length;
+      code = code + this.key.substr(charIndex, 1);
+    }
+    return code;
+  }
+
+  async determineRotate(rotate: Rotate): Promise<Rotate> {
     if (rotate == null) {
       rotate = {
         rotate: 0,
@@ -66,24 +69,19 @@ export class UnifyCode {
           throw new Error('Not enough code.');
         }
         rotate.rotate = rotate.rotate + 1;
-        this.newRotate(rotate);
-      } else {
-        if (
-          rotate.code > this.max &&
-          this.max !== this.__max &&
-          rotate.code <= this.__max
-        ) {
-          rotate.code = rotate.code + this.step;
-        }
-        if (rotate.code >= this.__max) {
-          rotate.code = rotate.code % this.__max;
-          if (rotate.code >= rotate.start) {
-            if (rotate.rotate + 1 > this.step) {
-              throw new Error('Not enough code.');
-            }
-            rotate.rotate = rotate.rotate + 1;
-            this.newRotate(rotate);
+        return this.newRotate(rotate);
+      }
+      if (rotate.code >= this.max && rotate.code < this.__max) {
+        rotate.code = rotate.code + this.step;
+      }
+      if (rotate.code >= this.__max) {
+        rotate.code = rotate.code % this.__max;
+        if (rotate.code >= rotate.start) {
+          if (rotate.rotate + 1 > this.step) {
+            throw new Error('Not enough code.');
           }
+          rotate.rotate = rotate.rotate + 1;
+          return this.newRotate(rotate);
         }
       }
     }
@@ -103,6 +101,7 @@ export class UnifyCode {
       rotate.start = (rotate.start + this.step) % this.__max;
     }
     rotate.code = rotate.start;
+    return rotate;
   }
 
   defaultStep(): number {
