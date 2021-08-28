@@ -1,6 +1,7 @@
 import {RotateSpaceStore, CodeValidator, RotateSpace} from './types';
 
 export class UnifyCode {
+  name: string;
   key: string;
   length: number;
   step: number;
@@ -10,12 +11,14 @@ export class UnifyCode {
   validator: CodeValidator;
 
   constructor(
+    name: string,
     key: string,
     length: number,
     store: RotateSpaceStore,
     validator: CodeValidator,
     step?: number,
   ) {
+    this.name = name;
     this.key = key;
     this.length = length;
     this.store = store;
@@ -32,12 +35,23 @@ export class UnifyCode {
     }
   }
 
+  async init(): Promise<void> {
+    const rotateSpace = await this.getRotateSpace();
+    if (rotateSpace && rotateSpace.key !== this.key) {
+      process.exit(10);
+    }
+    if (rotateSpace && rotateSpace.step !== this.step) {
+      process.exit(10);
+    }
+  }
+
   async generate(): Promise<string> {
-    const rotateSpace = await this.determineRotate(
-      await this.store.getRotateSpace(),
-    );
+    const rotateSpace = await this.determineRotate(await this.getRotateSpace());
     const code = this.valueToCode(rotateSpace.code, this.key, this.length);
-    await this.store.saveRotateSpace(rotateSpace);
+    await this.store.saveRotateSpace(
+      this.name + '_' + this.length,
+      rotateSpace,
+    );
     if (await this.validator.isValid(code)) return code;
     else return this.generate();
   }
@@ -52,12 +66,20 @@ export class UnifyCode {
     return code;
   }
 
-  async determineRotate(rotateSpace: RotateSpace): Promise<RotateSpace> {
-    if (rotateSpace == null) {
+  async getRotateSpace(): Promise<RotateSpace | null> {
+    return this.store.getRotateSpace(this.name + '_' + this.length);
+  }
+
+  async determineRotate(rotateSpace: RotateSpace | null): Promise<RotateSpace> {
+    if (!rotateSpace) {
       rotateSpace = {
         rotate: 0,
         start: 0,
         code: 0,
+        key: this.key,
+        length: this.length,
+        step: this.step,
+        name: this.name,
       };
     }
     if (!rotateSpace.rotate) {

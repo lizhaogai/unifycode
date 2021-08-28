@@ -38,12 +38,18 @@
     "tslib": "^2.0.0"
   },
   "devDependencies": {
+    "@loopback/boot": "^3.4.2",
+    "@loopback/core": "^2.16.2",
+    "@loopback/repository": "^3.7.1",
+    "@loopback/service-proxy": "^3.2.2",
     "@tib/build": "^6.3.0",
     "@tib/eslint-config": "^8.2.0",
     "@tib/testlab": "^3.4.0",
     "@types/mocha": "^8.0.0",
     "@types/node": "^14.0.26",
     "cross-env": "^7.0.2",
+    "kvs": "^2.2.2",
+    "kvs-redis": "^2.1.0",
     "mocha": "^8.0.1",
     "np": "^6.3.2"
   },
