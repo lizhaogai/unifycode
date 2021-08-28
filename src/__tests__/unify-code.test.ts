@@ -1,10 +1,10 @@
 import {expect} from '@tib/testlab';
-import {CodeValidator, Rotate, RotateStore, UnifyCode} from '../';
+import {CodeValidator, RotateSpace, RotateSpaceStore, UnifyCode} from '../';
 
-class VS implements RotateStore, CodeValidator {
-  rotate: Rotate;
+class VS implements RotateSpaceStore, CodeValidator {
+  rotate: RotateSpace;
 
-  async getRotate(): Promise<Rotate> {
+  async getRotateSpace(): Promise<RotateSpace> {
     return this.rotate;
   }
 
@@ -12,7 +12,7 @@ class VS implements RotateStore, CodeValidator {
     return true;
   }
 
-  async setRotate(rotate: Rotate): Promise<void> {
+  async saveRotateSpace(rotate: RotateSpace): Promise<void> {
     this.rotate = rotate;
   }
 }
@@ -28,8 +28,8 @@ describe('Unify Code', () => {
       const result: number[] = [];
       for (let i = 0; i < Math.pow(key.length, length); i++) {
         await unifyCode.generate();
-        const rotate = await unifyCode.store.getRotate();
-        result[rotate.code] = rotate.code;
+        const rotateSpace = await unifyCode.store.getRotateSpace();
+        result[rotateSpace.code] = rotateSpace.code;
       }
       for (let i = 0; i < Math.pow(key.length, length); i++) {
         expect(result[i]).to.equal(i);
@@ -42,8 +42,8 @@ describe('Unify Code', () => {
       const result: number[] = [];
       for (let i = 0; i < Math.pow(key.length, length); i++) {
         await unifyCode.generate();
-        const rotate = await unifyCode.store.getRotate();
-        result[rotate.code] = rotate.code;
+        const rotateSpace = await unifyCode.store.getRotateSpace();
+        result[rotateSpace.code] = rotateSpace.code;
       }
       for (let i = 0; i < Math.pow(key.length, length); i++) {
         expect(result[i]).to.equal(i);
@@ -56,8 +56,8 @@ describe('Unify Code', () => {
       const result: number[] = [];
       for (let i = 0; i < Math.pow(key.length, length); i++) {
         await unifyCode.generate();
-        const rotate = await unifyCode.store.getRotate();
-        result[rotate.code] = rotate.code;
+        const rotateSpace = await unifyCode.store.getRotateSpace();
+        result[rotateSpace.code] = rotateSpace.code;
       }
       for (let i = 0; i < Math.pow(key.length, length); i++) {
         expect(result[i]).to.equal(i);
@@ -81,29 +81,29 @@ describe('Unify Code', () => {
     it('max == __max', async () => {
       const vs = new VS();
       const unifyCode = new UnifyCode(key, length, vs, vs, 256);
-      let rotate = {
+      let rotateSpace = {
         code: Math.pow(key.length, length) - 256 * 2,
         rotate: 1,
         start: 256 * 2,
       };
-      expect(rotate.rotate).to.equal(1);
-      rotate = await unifyCode.determineRotate(rotate);
-      expect(rotate.rotate).to.equal(1);
-      expect(rotate.code).to.equal(Math.pow(key.length, length) - 256);
-      rotate = await unifyCode.determineRotate(rotate);
-      expect(rotate.rotate).to.equal(1);
-      expect(rotate.code).to.equal(0);
-      rotate = await unifyCode.determineRotate(rotate);
-      expect(rotate.rotate).to.equal(1);
-      expect(rotate.code).to.equal(256);
-      rotate = await unifyCode.determineRotate(rotate);
-      expect(rotate.rotate).to.equal(2);
+      expect(rotateSpace.rotate).to.equal(1);
+      rotateSpace = await unifyCode.determineRotate(rotateSpace);
+      expect(rotateSpace.rotate).to.equal(1);
+      expect(rotateSpace.code).to.equal(Math.pow(key.length, length) - 256);
+      rotateSpace = await unifyCode.determineRotate(rotateSpace);
+      expect(rotateSpace.rotate).to.equal(1);
+      expect(rotateSpace.code).to.equal(0);
+      rotateSpace = await unifyCode.determineRotate(rotateSpace);
+      expect(rotateSpace.rotate).to.equal(1);
+      expect(rotateSpace.code).to.equal(256);
+      rotateSpace = await unifyCode.determineRotate(rotateSpace);
+      expect(rotateSpace.rotate).to.equal(2);
     });
 
     it('max != __max', async () => {
       const vs = new VS();
       const unifyCode = new UnifyCode(key, length, vs, vs, 289);
-      let rotate = {
+      let rotateSpace = {
         code:
           Math.pow(key.length, length) -
           (Math.pow(key.length, length) % 289) -
@@ -113,19 +113,19 @@ describe('Unify Code', () => {
         rotate: 10,
         start: 289 * 2 + 10 - 1,
       };
-      expect(rotate.rotate).to.equal(10);
-      rotate = await unifyCode.determineRotate(rotate);
-      expect(rotate.rotate).to.equal(10);
-      expect(rotate.code).to.equal(
+      expect(rotateSpace.rotate).to.equal(10);
+      rotateSpace = await unifyCode.determineRotate(rotateSpace);
+      expect(rotateSpace.rotate).to.equal(10);
+      expect(rotateSpace.code).to.equal(
         Math.pow(key.length, length) -
           (Math.pow(key.length, length) % 289) -
           289 * 1 +
           10 -
           1,
       );
-      rotate = await unifyCode.determineRotate(rotate);
-      expect(rotate.rotate).to.equal(10);
-      expect(rotate.code).to.equal(
+      rotateSpace = await unifyCode.determineRotate(rotateSpace);
+      expect(rotateSpace.rotate).to.equal(10);
+      expect(rotateSpace.code).to.equal(
         Math.pow(key.length, length) -
           (Math.pow(key.length, length) % 289) -
           289 * 0 +
@@ -133,16 +133,37 @@ describe('Unify Code', () => {
           1,
       );
 
-      rotate = await unifyCode.determineRotate(rotate);
-      expect(rotate.rotate).to.equal(10);
-      expect(rotate.code).to.equal(289 * 0 + 10 - 1);
+      rotateSpace = await unifyCode.determineRotate(rotateSpace);
+      expect(rotateSpace.rotate).to.equal(10);
+      expect(rotateSpace.code).to.equal(289 * 0 + 10 - 1);
 
-      rotate = await unifyCode.determineRotate(rotate);
-      expect(rotate.rotate).to.equal(10);
-      expect(rotate.code).to.equal(289 * 1 + 10 - 1);
+      rotateSpace = await unifyCode.determineRotate(rotateSpace);
+      expect(rotateSpace.rotate).to.equal(10);
+      expect(rotateSpace.code).to.equal(289 * 1 + 10 - 1);
 
-      rotate = await unifyCode.determineRotate(rotate);
-      expect(rotate.rotate).to.equal(10 + 1);
+      rotateSpace = await unifyCode.determineRotate(rotateSpace);
+      expect(rotateSpace.rotate).to.equal(10 + 1);
+    });
+
+    it('(max-1)%step=0', async () => {
+      const vs = new VS();
+      const unifyCode = new UnifyCode('abcdefg', 2, vs, vs, 12);
+      let rotateSpace = {
+        code: 36,
+        rotate: 1,
+        start: 24,
+      };
+      rotateSpace = await unifyCode.determineRotate(rotateSpace);
+      expect(rotateSpace.rotate).to.equal(1);
+      expect(rotateSpace.code).to.equal(48);
+      rotateSpace = await unifyCode.determineRotate(rotateSpace);
+      expect(rotateSpace.rotate).to.equal(1);
+      expect(rotateSpace.code).to.equal(0);
+      rotateSpace = await unifyCode.determineRotate(rotateSpace);
+      expect(rotateSpace.rotate).to.equal(1);
+      expect(rotateSpace.code).to.equal(12);
+      rotateSpace = await unifyCode.determineRotate(rotateSpace);
+      expect(rotateSpace.rotate).to.equal(2);
     });
   });
 

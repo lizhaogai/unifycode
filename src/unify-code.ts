@@ -1,4 +1,4 @@
-import {RotateStore, CodeValidator, Rotate} from './types';
+import {RotateSpaceStore, CodeValidator, RotateSpace} from './types';
 
 export class UnifyCode {
   key: string;
@@ -6,13 +6,13 @@ export class UnifyCode {
   step: number;
   max: number;
   __max: number;
-  store: RotateStore;
+  store: RotateSpaceStore;
   validator: CodeValidator;
 
   constructor(
     key: string,
     length: number,
-    store: RotateStore,
+    store: RotateSpaceStore,
     validator: CodeValidator,
     step?: number,
   ) {
@@ -33,9 +33,11 @@ export class UnifyCode {
   }
 
   async generate(): Promise<string> {
-    const rotate = await this.determineRotate(await this.store.getRotate());
-    const code = this.valueToCode(rotate.code, this.key, this.length);
-    await this.store.setRotate(rotate);
+    const rotateSpace = await this.determineRotate(
+      await this.store.getRotateSpace(),
+    );
+    const code = this.valueToCode(rotateSpace.code, this.key, this.length);
+    await this.store.saveRotateSpace(rotateSpace);
     if (await this.validator.isValid(code)) return code;
     else return this.generate();
   }
@@ -50,58 +52,61 @@ export class UnifyCode {
     return code;
   }
 
-  async determineRotate(rotate: Rotate): Promise<Rotate> {
-    if (rotate == null) {
-      rotate = {
+  async determineRotate(rotateSpace: RotateSpace): Promise<RotateSpace> {
+    if (rotateSpace == null) {
+      rotateSpace = {
         rotate: 0,
         start: 0,
         code: 0,
       };
     }
-    if (!rotate.rotate) {
-      rotate.rotate = 1;
-      this.newRotate(rotate);
+    if (!rotateSpace.rotate) {
+      rotateSpace.rotate = 1;
+      this.newRotate(rotateSpace);
     } else {
-      const _preCode = rotate.code;
-      rotate.code = rotate.code + this.step;
-      if (_preCode < rotate.start && rotate.code >= rotate.start) {
-        if (rotate.rotate + 1 > this.step) {
+      const _preCode = rotateSpace.code;
+      rotateSpace.code = rotateSpace.code + this.step;
+      if (
+        _preCode < rotateSpace.start &&
+        rotateSpace.code >= rotateSpace.start
+      ) {
+        if (rotateSpace.rotate + 1 > this.step) {
           throw new Error('Not enough code.');
         }
-        rotate.rotate = rotate.rotate + 1;
-        return this.newRotate(rotate);
+        rotateSpace.rotate = rotateSpace.rotate + 1;
+        return this.newRotate(rotateSpace);
       }
-      if (rotate.code >= this.max && rotate.code < this.__max) {
-        rotate.code = rotate.code + this.step;
+      if (rotateSpace.code >= this.max && rotateSpace.code < this.__max) {
+        rotateSpace.code = rotateSpace.code + this.step;
       }
-      if (rotate.code >= this.__max) {
-        rotate.code = rotate.code % this.__max;
-        if (rotate.code >= rotate.start) {
-          if (rotate.rotate + 1 > this.step) {
+      if (rotateSpace.code >= this.__max) {
+        rotateSpace.code = rotateSpace.code % this.__max;
+        if (rotateSpace.code >= rotateSpace.start) {
+          if (rotateSpace.rotate + 1 > this.step) {
             throw new Error('Not enough code.');
           }
-          rotate.rotate = rotate.rotate + 1;
-          return this.newRotate(rotate);
+          rotateSpace.rotate = rotateSpace.rotate + 1;
+          return this.newRotate(rotateSpace);
         }
       }
     }
-    return rotate;
+    return rotateSpace;
   }
 
-  private newRotate(rotate: Rotate) {
+  private newRotate(rotateSpace: RotateSpace) {
     const start = ~~(this.max * Math.random()) ?? 1;
     if (start % this.step === 0) {
-      rotate.start = (start + rotate.rotate - 1) % this.__max;
+      rotateSpace.start = (start + rotateSpace.rotate - 1) % this.__max;
     } else {
-      rotate.start =
-        (start + this.step - (start % this.step) + rotate.rotate - 1) %
+      rotateSpace.start =
+        (start + this.step - (start % this.step) + rotateSpace.rotate - 1) %
         this.__max;
     }
-    if (rotate.start > this.max) {
-      rotate.start = (rotate.start + this.step) % this.__max;
+    if (rotateSpace.start > this.max) {
+      rotateSpace.start = (rotateSpace.start + this.step) % this.__max;
     }
-    rotate.code = rotate.start;
-    return rotate;
+    rotateSpace.code = rotateSpace.start;
+    return rotateSpace;
   }
 
   defaultStep(): number {

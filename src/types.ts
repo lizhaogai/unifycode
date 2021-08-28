@@ -1,10 +1,10 @@
-export interface RotateStore {
-  setRotate(rotate: Rotate): Promise<void>;
+export interface RotateSpaceStore {
+  saveRotateSpace(rotateSpace: RotateSpace): Promise<void>;
 
-  getRotate(): Promise<Rotate>;
+  getRotateSpace(): Promise<RotateSpace>;
 }
 
-export type Rotate = {
+export type RotateSpace = {
   code: number;
   rotate: number;
   start: number;
