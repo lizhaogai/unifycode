@@ -8,10 +8,16 @@ describe('Unify Code Service', () => {
   before('setupApplication', async () => {
     console.time('time');
     app = await setupApplication();
+    const service: UnifyCodeService = app.getSync(UnifyCodeBindings.SERVICE);
+    await service.bucket.del(
+      service.uniFyCode.name + '_' + service.uniFyCode.length,
+    );
   });
 
+  after('', async () => {});
+
   describe('generate', () => {
-    it.only('code unique', async () => {
+    it('code unique', async () => {
       const service: UnifyCodeService = app.getSync(UnifyCodeBindings.SERVICE);
       const result: number[] = [];
       for (
