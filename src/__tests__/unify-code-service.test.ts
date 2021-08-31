@@ -9,6 +9,11 @@ describe('Unify Code Service', () => {
     console.time('time');
     app = await setupApplication();
     const service: UnifyCodeService = app.getSync(UnifyCodeBindings.SERVICE);
+    await new Promise(function (resolve) {
+      setTimeout(function () {
+        resolve(1);
+      }, 1000);
+    });
     await service.bucket.del(
       service.uniFyCode.name + '_' + service.uniFyCode.length,
     );

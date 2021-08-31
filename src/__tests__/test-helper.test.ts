@@ -23,6 +23,10 @@ export class MyApplication extends BootMixin(
       key: 'abcdefghjkm',
       length: 3,
       step: options.step ?? 256,
+      store: {
+        host: 'localhost',
+        db: 10,
+      },
     });
     this.component(UnifyCodeComponent);
     this.bind(UnifyCodeBindings.VALIDATOR).to(new V());

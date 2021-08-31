@@ -32,7 +32,7 @@ export class UnifyCodeService implements RotateSpaceStore, CodeValidator {
       db: config?.store?.db,
       host: config?.store?.host,
     });
-    this.bucket = this.store.createBucket('unifycode');
+
     this.uniFyCode = new UnifyCode(
       config.name,
       config.key,
@@ -42,7 +42,14 @@ export class UnifyCodeService implements RotateSpaceStore, CodeValidator {
       config.step,
     );
     // eslint-disable-next-line no-void
-    void this.uniFyCode.init();
+    void this.init();
+  }
+
+  async init() {
+    this.bucket = await this.store
+      .createBucket('unifycode')
+      .then((c: Bucket) => c);
+    await this.uniFyCode.init();
   }
 
   async generate(): Promise<string> {
