@@ -46,9 +46,7 @@ export class UnifyCodeService implements RotateSpaceStore, CodeValidator {
   }
 
   async init() {
-    this.bucket = await this.store
-      .createBucket('unifycode')
-      .then((c: Bucket) => c);
+    this.bucket = await this.store.createBucket('unifycode');
     await this.uniFyCode.init();
   }
 
