@@ -2,6 +2,7 @@ import {bind, BindingScope, ContextTags, inject, Context} from '@loopback/core';
 import {UnifyCodeBindings} from './keys';
 import {
   CodeValidator,
+  LockGenerator,
   RotateSpace,
   RotateSpaceStore,
   UnifyCodeConfig,
@@ -22,6 +23,8 @@ export class UnifyCodeService implements RotateSpaceStore, CodeValidator {
     @inject.context() public context: Context,
     @inject(UnifyCodeBindings.VALIDATOR)
     public validator: CodeValidator,
+    @inject('services.redlock.service')
+    private lockGenerator: LockGenerator,
   ) {
     const config: UnifyCodeConfig | undefined =
       this.context.getConfigSync('unifycode');
@@ -51,7 +54,16 @@ export class UnifyCodeService implements RotateSpaceStore, CodeValidator {
   }
 
   async generate(): Promise<string> {
-    return this.uniFyCode.generate();
+    const lock = await this.lockGenerator.lock(
+      'mybox:commission:code',
+      3 * 1000,
+    );
+    try {
+      const result = await this.uniFyCode.generate();
+      return result;
+    } finally {
+      await lock.unlock();
+    }
   }
 
   async getRotateSpace(name: string): Promise<RotateSpace | null> {

@@ -3,12 +3,22 @@ import {ServiceMixin} from '@loopback/service-proxy';
 import {BootMixin} from '@loopback/boot';
 import {Application} from '@loopback/core';
 import {UnifyCodeComponent} from '../unify-code-component';
-import {CodeValidator} from '../types';
+import {CodeValidator, Lock, LockGenerator} from '../types';
 import {UnifyCodeBindings} from '../keys';
 
 class V implements CodeValidator {
   async isValid(code: string): Promise<boolean> {
     return true;
+  }
+}
+
+class Locker implements LockGenerator {
+  lock(resource: string, timeout: number): Promise<Lock> {
+    return Promise.resolve({
+      unlock: async function (): Promise<void> {
+        return;
+      },
+    });
   }
 }
 
@@ -30,6 +40,7 @@ export class MyApplication extends BootMixin(
     });
     this.component(UnifyCodeComponent);
     this.bind(UnifyCodeBindings.VALIDATOR).to(new V());
+    this.bind('services.redlock.service').to(new Locker());
   }
 }
 

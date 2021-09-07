@@ -1,6 +1,6 @@
 {
   "name": "unifycode",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "Unify Code library",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

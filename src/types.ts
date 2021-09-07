@@ -28,3 +28,11 @@ export type UnifyCodeConfig = {
 export interface CodeValidator {
   isValid(code: string): Promise<boolean>;
 }
+
+export interface Lock {
+  unlock(): Promise<void>;
+}
+
+export interface LockGenerator {
+  lock(resource: string, timeout: number): Promise<Lock>;
+}
