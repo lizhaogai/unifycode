@@ -1,6 +1,8 @@
 import {expect} from '@tib/testlab';
 import {CodeValidator, RotateSpace, RotateSpaceStore, UnifyCode} from '../';
 
+const niceCodes: string[] = [];
+
 class VS implements RotateSpaceStore, CodeValidator {
   rotate: Map<string, RotateSpace> = new Map<string, RotateSpace>();
 
@@ -9,7 +11,7 @@ class VS implements RotateSpaceStore, CodeValidator {
   }
 
   async isValid(code: string): Promise<boolean> {
-    return true;
+    return !niceCodes.includes(code.toUpperCase());
   }
 
   async saveRotateSpace(name: string, rotate: RotateSpace): Promise<void> {
@@ -18,14 +20,14 @@ class VS implements RotateSpaceStore, CodeValidator {
 }
 
 const key = 'abcdefghjkmnpqrstuvwxyz123456789';
-const length = 4;
+const length = 5;
 const name = 'test';
 
 describe('Unify Code', () => {
   describe('generate', () => {
     it('code unique', async () => {
       const vs = new VS();
-      const unifyCode = new UnifyCode(name, key, length, vs, vs);
+      const unifyCode = new UnifyCode(name, key, length, vs, vs, 199999);
       const result: number[] = [];
       for (let i = 0; i < Math.pow(key.length, length); i++) {
         await unifyCode.generate();
@@ -35,7 +37,7 @@ describe('Unify Code', () => {
       for (let i = 0; i < Math.pow(key.length, length); i++) {
         expect(result[i]).to.equal(i);
       }
-    }).timeout(60 * 1000);
+    }).timeout(600 * 1000);
 
     it('max===__max', async () => {
       const vs = new VS();
@@ -75,6 +77,31 @@ describe('Unify Code', () => {
       } catch (e) {
         expect(e.message).to.equal('Not enough code.');
       }
+    }).timeout(600 * 1000);
+
+    it('nice code', async () => {
+      const vs = new VS();
+      const unifyCode = new UnifyCode(name, key, length, vs, vs, 256);
+      await unifyCode.generate();
+      let rotateSpace = await unifyCode.getRotateSpace();
+      const flag = true;
+      while (flag) {
+        if ((rotateSpace?.code ?? 0) + unifyCode.step < unifyCode.max) {
+          break;
+        } else {
+          await unifyCode.generate();
+          rotateSpace = await unifyCode.getRotateSpace();
+        }
+      }
+
+      const code = unifyCode.valueToCode(
+        (rotateSpace?.code ?? 0) + unifyCode.step,
+        unifyCode.key,
+        unifyCode.length,
+      );
+      niceCodes.push(code.toUpperCase());
+      const codeValue = await unifyCode.generate();
+      expect(codeValue === code).equal(false);
     }).timeout(60 * 1000);
   });
 
